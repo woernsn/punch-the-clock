@@ -1,8 +1,15 @@
+<div align="center">
+  
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![Django](https://img.shields.io/badge/django-%23092E20.svg?style=for-the-badge&logo=django&logoColor=white)
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 
+</div>
+  
 # Table of Content
+<details>
+  <summary>Show</summary>
+  
 - [Table of Content](#table-of-content)
 - [About](#about)
   - [Features](#features)
@@ -15,7 +22,9 @@
 - [Usage](#usage)
   - [Development](#development-1)
   - [Production](#production-1)
-
+  
+</details>
+  
 # About
 ## Features
 
@@ -29,7 +38,9 @@
   * BEARER authentication.
 
 ## Screenshots
-
+<details>
+  <summary>Show</summary>
+  
 * List View
 ![List View](images/list.png)
 
@@ -41,6 +52,8 @@
 
 * Generate API Token
 ![Generate API Token](images/API_token.png)
+  
+</details>
 
 # Configuration
 See the [development `env` file](.env.dev) or the [production `env` file](.env.prod) for available configurations.
