@@ -1,0 +1,68 @@
+{% extends "app/base.html" %}
+
+{% block content %}
+<div id="calendar"></div>
+
+{% for timelog in timelog_list %}
+<div class="modal fade" id="eventModal{{timelog.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Details ({{ timelog.id }})</h5>
+                <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">{{timelog.start_date|date:"l, d.m.Y H:i"}}<br/>-<br/>{{timelog.end_date|date:"l, d.m.Y H:i"}}</div>
+            <div class="modal-footer">
+                <button id="eventModalBtn" type="button" class="btn btn-primary" onclick="window.location.href='{% url 'timelog_details' timelog.id %}';" data-mdb-dismiss="modal">Edit</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+
+{% load static %}
+<script type="module">
+    import { Spinner } from '{% static 'resources/bootstrap-4-calendar/js/spinner.js' %}';
+    import { Calendar } from '{% static 'resources/bootstrap-4-calendar/js/calendar.js' %}';
+
+    const ready = callback => {
+        if (document.readyState !== 'loading') callback();
+        else if (document.addEventListener)
+            document.addEventListener('DOMContentLoaded', callback);
+        else
+            document.attachEvent('onreadystatechange', function () {
+                if (document.readyState === 'complete') callback();
+            });
+    };
+
+    function showModal(e, id) {
+        const timelogid = e.srcElement.attributes['timelogid'].value
+        const myModal = new mdb.Modal($('#eventModal'+timelogid), {
+            backdrop: false
+        });
+
+        myModal.show();
+    }
+
+    ready(async () => {
+        const cal = Calendar('calendar');
+        const spr = Spinner('calendar');
+        await spr.renderSpinner().delay(0);
+        var data = []
+    {% for timelog in timelog_list %}
+        data.push({
+            time: '{{ timelog.start_date|date:"c" }}',
+            cls: 'bg-green',
+            desc: '({{ timelog.start_date|timesince:timelog.end_date }})',
+            tlid: '{{ timelog.id }}'
+        })
+    {% endfor %}
+        cal.bindData(data);
+        cal.onEventClick = function(e) { showModal(e, 'eventModal'); };
+        cal.onDateClick = null;
+        cal.render();
+    });
+
+</script>
+{% endblock %}

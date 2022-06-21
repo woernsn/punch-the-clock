@@ -1,0 +1,34 @@
+{% extends "app/base.html" %}
+
+{% block content %}
+<table class="table table-hover table-responsive bg-white">
+    <thead class="bg-light">
+        <tr>
+            <th scope="col" style="width: 5%;">ID</th>
+            <th scope="col" style="width: 20%;">Date</th>
+            <th scope="col" style="width: 20%;">Start Time</th>
+            <th scope="col" style="width: 20%;">End Time</th>
+            <th scope="col" style="width: 20%;">Duration</th>
+            <th scope="col" style="width: 10%;"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for timelog in timelog_list %}
+        <tr>
+            <td>{{ timelog.id }}</td>
+            <td>{{ timelog.start_date|date:"l, d.m.Y" }}</td>
+            <td>{{ timelog.start_date|date:"H:i" }}</td>
+            <td>{{ timelog.end_date|date:"H:i" }}</td>
+            <td>{{ timelog.start_date|timesince:timelog.end_date }}</td>
+            <td>
+                <button class="btn btn-floating"
+                    onclick="window.location.href='{% url 'timelog_details' timelog.id %}';">
+                    <i class="fas fa-edit"></i>
+                </button>
+            </td>
+
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

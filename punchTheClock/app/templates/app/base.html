@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Punch The Clock!</title>
+
+    {% load static %}
+
+    <!-- FavIcon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'resources/favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'resources/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'resources/favicon/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'resources/favicon/site.webmanifest' %}">
+
+    <!-- Font Awesome -->
+    <link href="{% static 'resources/fontawesome-free-6.1.1-web/css/all.min.css' %}" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="{% static 'resources/css/google-fonts.css' %}" rel="stylesheet" />
+    <!-- MDB -->
+    <link href="{% static 'resources/mdb-ui-kit-4.2.0/css/mdb.min.css' %}" rel="stylesheet" />
+
+    <!-- MDB -->
+    <script type="text/javascript" src="{% static 'resources/mdb-ui-kit-4.2.0/js/mdb.min.js' %}"></script>
+
+    <!-- jQuery -->
+    <script src="{% static 'resources/js/jquery-3.6.0.min.js' %}"></script>
+
+    <!-- Toastr -->
+    <link href="{% static 'resources/css/toastr.min.css' %}" rel="stylesheet" />
+    <script type="text/javascript" src="{% static 'resources/js/toastr.min.js' %}"></script>
+
+    <!-- Moment -->
+    <script type="text/javascript" src="{% static 'resources/js/moment.js' %}"></script>
+
+    <!-- bootstrap-4-calendar -->
+    <link href="{% static 'resources/bootstrap-4-calendar/css/calendar.css' %}" rel="stylesheet" />
+    <link href="{% static 'resources/bootstrap-4-calendar/css/theme.css' %}" rel="stylesheet" />
+
+    <!-- Animate -->
+    <link href="{% static 'resources/css/animate.min.css' %}" rel="stylesheet" />
+
+    <!-- PunchTheClock -->
+    <script type="text/javascript" src="{% static 'resources/js/punchTheClock.js' %}"></script>
+</head>
+
+<body>
+    <header>
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+            <div class="container-fluid justify-content-between">
+                
+                <div class="d-flex align-items-center">
+                    <!-- Left links -->
+                    <a class="navbar-brand mt-2 mt-lg-0" href="#">
+                        <img src="{% static 'resources/favicon/twoOClock.svg' %}" height="46" alt="twoOClock"
+                            loading="lazy" />
+                    </a>
+
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item active">
+                            <a class="nav-link" aria-current="page" href="{% url 'timelog_list' %}">List</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'timelog_calendar' %}">Calendar</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Center -->
+                <ul class="navbar-nav flex-column align-items-center">
+                    <div class="p-2">
+                        {% if open_timelog is not None %} {{ open_timelog.start_date|date:"l, d.m.Y H:i" }} <i class="ms-3 fas fa-hourglass-end animate__animated animate__flip animate__slower animate__infinite"></i> {% else %} —— {% endif %}
+                    </div>
+                    <div class="p-2">
+
+                        <form action="{% url 'punch' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <input type="submit" class="btn btn-rounded {% if open_timelog is None %} btn-success {% else %} btn-danger {% endif %}" value="{% if open_timelog is None %} Punch in {% else %} Punch out {% endif %}">
+                        </form>
+                </div>
+                </ul>
+
+                <!-- Right links -->
+                <ul class="navbar-nav flex-row">
+                    <li class="nav-item me-3 me-lg-1">
+                        <a class="nav-link" href="{% url 'token' %}">API Token</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <!-- Navbar -->
+
+        <!-- Jumbotron -->
+        <div class="p-5 text-center bg-light" style="margin-top: 94px;">
+            <div class="container-md shadow-3-strong">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+        <!-- Jumbotron -->
+    </header>
+</body>
+
+</html>

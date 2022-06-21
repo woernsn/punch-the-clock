@@ -1,0 +1,50 @@
+{% extends "app/base.html" %}
+
+{% block content %}
+<form action="{% url 'token' %}" method="post">
+  {% csrf_token %}
+  <div class="container py-4">
+    <div class="row">
+      <div class="pb-4">
+        Copying will be possible once a (new) API token is generated.<br />
+        Please store the API token after generating - you will not be able to see it afterwards.
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md">
+
+        <div class="form-outline">
+          {{ form.token }}
+          <label for="{{ form.token.id_for_label }}" class="form-label">API Token</label>
+        </div>
+      </div>
+
+      <div class="col-md-1">
+        <button id="copy_button" type="button" {% if not generated %} disabled="" {% endif %}
+          onclick="copyToClipboard('#{{ form.token.id_for_label }}')" class="btn btn-secondary"
+          title="Copy to clipboard">
+          <i class="fas fa-copy"></i>
+        </button>
+      </div>
+      
+      <div class="col-md-2">
+        <button id="generate_button" type="submit" class="btn btn-primary">Generate</button>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    document.querySelectorAll('.form-outline').forEach((formOutline) => {
+      new mdb.Input(formOutline).init();
+    });
+
+    {% if generated %}
+      toastr.success("New API token generated.")
+    {% endif %}
+  });
+</script>
+{% endblock %}

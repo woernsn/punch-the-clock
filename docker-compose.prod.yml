@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: ./punchTheClock
+      dockerfile: Dockerfile.prod
+    command: gunicorn punchTheClock.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+    expose:
+      - 8000
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - db
+  
+  db:
+    image: postgres:14.3-alpine
+    volumes:
+      - postgres_data:/var/lib/postresql/data/
+    env_file:
+      - ./.env.prod
+
+  proxy:
+    build: ./nginx
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+    ports:
+      - 80:80
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+  static_volume:

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Punch The Clock!</title>
+
+    {% load static %}
+
+    <!-- FavIcon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'resources/favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'resources/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'resources/favicon/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'resources/favicon/site.webmanifest' %}">
+
+    <!-- Font Awesome -->
+    <link href="{% static 'resources/fontawesome-free-6.1.1-web/css/all.min.css' %}" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="{% static 'resources/css/google-fonts.css' %}" rel="stylesheet" />
+    <!-- MDB -->
+    <link href="{% static 'resources/mdb-ui-kit-4.2.0/css/mdb.min.css' %}" rel="stylesheet" />
+
+    <!-- MDB -->
+    <script type="text/javascript" src="{% static 'resources/mdb-ui-kit-4.2.0/js/mdb.min.js' %}"></script>
+
+    <!-- jQuery -->
+    <script src="{% static 'resources/js/jquery-3.6.0.min.js' %}"></script>
+
+    <!-- Toastr -->
+    <link href="{% static 'resources/css/toastr.min.css' %}" rel="stylesheet" />
+    <script type="text/javascript" src="{% static 'resources/js/toastr.min.js' %}"></script>
+</head>
+
+<body>
+    <div class="p-5 text-center bg-light">
+        <div class="container-md shadow-3-strong w-50 pt-4">
+            {% if form.errors %}
+            <p>Your username and password didn't match. Please try again.</p>
+            {% endif %}
+
+            {% if next %}
+            {% if user.is_authenticated %}
+            <p>Your account doesn't have access to this page. To proceed,
+                please login with an account that has access.</p>
+            {% else %}
+            <h2>Please login to see this page.</h2>
+            {% endif %}
+            {% endif %}
+
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                <div class="container w-50 my-4">
+                    <div class="row justify-content-center pb-4">
+                        <div class="col-md">
+                            <div class="form-outline">
+                                {{ form.username }}
+                                <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label_tag }}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center pb-4">
+                        <div class="col-md">
+                            <div class="form-outline">
+                                {{ form.password }}
+                                <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label_tag }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="submit" class="btn btn-primary" value="login">
+                <input type="hidden" name="next" value="{{ next }}">
+            </form>
+
+            {# Assumes you set up the password_reset view in your URLconf #}
+            <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+          document.querySelectorAll('.form-outline').forEach((formOutline) => {
+            new mdb.Input(formOutline).init();
+          });
+        });
+    </script>
+</body>
+</html>
