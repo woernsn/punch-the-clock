@@ -24,7 +24,7 @@ class TimeLog(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    token = models.BinaryField(blank=True, verbose_name='API Token', unique=True)
+    token = models.BinaryField(blank=True, null=True, verbose_name='API Token', unique=True)
 
 
 @receiver(post_save, sender=User)

@@ -18,6 +18,8 @@
   - [Features](#features)
   - [Screenshots](#screenshots)
 - [Configuration](#configuration)
+  - [Application](#application)
+  - [NGINX](#nginx)
 - [Building](#building)
   - [Development](#development)
     - [Testing](#testing)
@@ -59,17 +61,20 @@
 </details>
 
 # Configuration
+## Application
 See the [development `env` file](.env.dev) or the [production `env` file](.env.prod) for available configurations.
 
+## NGINX
+If you want to use the productive Docker image, don't forget to check the [nginx.conf](nginx/nginx.conf) file and adapt it accordingly.
 # Building
 ## Development
 1. Build the image
 ```shell
-$ docker compose -f docker-compose.yml up --build
+$ docker compose -f docker-compose.dev.yml up --build
 ```
 2. Add the initial admin user
 ```shell
-$ docker compose exec web python manage.py createsuperuser --username=admin --email=admin@example.com
+$ docker compose -f docker-compose.dev.yml exec web python manage.py createsuperuser --username=admin --email=admin@example.com
 ```
 
 ### Testing
@@ -85,15 +90,15 @@ $ docker compose -f docker-compose.prod.yml up --build
 ```
 2. Create the database layout
 ```shell
-$ docker compose exec web python manage.py migrate --no-input
+$ docker compose -f docker-compose.prod.yml exec web python manage.py migrate --no-input
 ```
 3. Collect the static files for nginx
 ```shell
-$ docker compose exec web python manage.py collectstatic --no-input --clear
+$ docker compose -f docker-compose.prod.yml exec web python manage.py collectstatic --no-input --clear
 ```
 4. Add the initial admin user
 ```shell
-$ docker compose exec web python manage.py createsuperuser --username=admin --email=admin@example.com
+$ docker compose -f docker-compose.prod.yml exec web python manage.py createsuperuser --username=admin --email=admin@example.com
 ```
 
 # Usage

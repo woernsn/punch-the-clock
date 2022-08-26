@@ -166,6 +166,9 @@ def search_user_for_token(token: str) -> User:
 
     users = User.objects.all()
     for user in users:
+        if user.profile.token is None:
+            continue
+        
         decrypted_token = fernet.decrypt(bytes(user.profile.token)).decode()  # https://code.djangoproject.com/ticket/27813
         if decrypted_token == token:
             return user
