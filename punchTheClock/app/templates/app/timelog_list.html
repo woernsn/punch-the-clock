@@ -1,11 +1,51 @@
 {% extends "app/base.html" %}
 
 {% block content %}
+
+<div class="modal fade" id="daysToShowModal" tabindex="-1" aria-labelledby="daysToShowModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{% url 'timelog_list' %}" method="post">
+                {% csrf_token %}
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="daysToShowModalLabel">How many days to show in the list</h5>
+                    <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Show last <b><span id="daysToShow">{{showLastDays}}</span></b> days<br/>
+
+                    <div class="range">
+                        <input type="range" name="numDaysRange" value="{{showLastDays}}" class="form-range" min="1" max="90" id="numDaysRange" oninput="$('#daysToShow').text(this.value)"/>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button id="daysToShowModalBtn" type="submit" class="btn btn-primary" onclick="" data-mdb-dismiss="modal">Update</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex flex-row-reverse">
+    <button type="button" class="btn btn-primary m-4" data-mdb-toggle="modal" data-mdb-target="#daysToShowModal">
+        Settings
+    </button>
+</div>
+
 <table class="table table-hover table-responsive bg-white">
     <thead class="bg-light">
         <tr>
-            <th scope="col" style="width: 5%;">ID</th>
-            <th scope="col" style="width: 20%;">Date</th>
+            <th scope="col" style="width: 25%;">
+                {% if sortAsc is True %}
+                <a href="{% url 'timelog_list' %}?sorting=desc"><i class="fa fa-arrow-down-1-9"></i></a>
+                {% else %}
+                <a  href="{% url 'timelog_list' %}?sorting=asc"><i class="fa fa-arrow-up-1-9"></i></a>
+                {% endif %}
+                <span class="ms-3">Date</span>
+            </th>
             <th scope="col" style="width: 20%;">Start Time</th>
             <th scope="col" style="width: 20%;">End Time</th>
             <th scope="col" style="width: 20%;">Duration</th>
@@ -15,7 +55,6 @@
     <tbody>
         {% for timelog in timelog_list %}
         <tr>
-            <td>{{ timelog.id }}</td>
             <td>{{ timelog.start_date|date:"l, d.m.Y" }}</td>
             <td>{{ timelog.start_date|date:"H:i" }}</td>
             <td>{{ timelog.end_date|date:"H:i" }}</td>

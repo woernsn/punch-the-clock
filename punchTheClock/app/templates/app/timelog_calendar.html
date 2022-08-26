@@ -4,16 +4,16 @@
 <div id="calendar"></div>
 
 {% for timelog in timelog_list %}
-<div class="modal fade" id="eventModal{{timelog.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="eventModal{{timelog.id}}" tabindex="-1" aria-labelledby="eventModal{{timelog.id}}Label" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Details ({{ timelog.id }})</h5>
+                <h5 class="modal-title" id="eventModal{{timelog.id}}Label">Details ({{ timelog.id }})</h5>
                 <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">{{timelog.start_date|date:"l, d.m.Y H:i"}}<br/>-<br/>{{timelog.end_date|date:"l, d.m.Y H:i"}}</div>
             <div class="modal-footer">
-                <button id="eventModalBtn" type="button" class="btn btn-primary" onclick="window.location.href='{% url 'timelog_details' timelog.id %}';" data-mdb-dismiss="modal">Edit</button>
+                <button id="eventModalBtn{{timelog.id}}" type="button" class="btn btn-primary" onclick="window.location.href='{% url 'timelog_details' timelog.id %}';" data-mdb-dismiss="modal">Edit</button>
             </div>
         </div>
     </div>

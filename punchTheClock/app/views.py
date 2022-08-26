@@ -16,11 +16,25 @@ from .models import Profile, TimeLog
 
 
 @login_required
-def timelog_list(request):
+def timelog_list(request, sorting):
+    sortSign = '-'
+
+    if request.method == 'GET':
+        if request.GET.get('sorting', 'desc') == 'asc':
+            sortSign = ''
+
+    elif request.method == 'POST':
+        if 'numDaysRange' in request.POST:
+            request.session['numDays'] = request.POST['numDaysRange']
+
+    numDays = request.session.get('numDays')
+
     now = timezone.now()
-    past_date_before_2months = now - timedelta(weeks=settings.WEEKS_TO_SHOW)
-    timelogs = TimeLog.objects.filter(user_id=request.user.id).filter(start_date__gte=past_date_before_2months)
-    return render(request, 'app/timelog_list.html', {'timelog_list': timelogs, 'title': 'List'})
+    pastDays = now - timedelta(days=(int(numDays) if numDays else 30))
+
+    timelogs = TimeLog.objects.filter(user_id=request.user.id).filter(start_date__gte=pastDays).order_by(f'{sortSign}start_date')
+
+    return render(request, 'app/timelog_list.html', {'timelog_list': timelogs, 'title': 'List', 'sortAsc': sortSign == '', 'showLastDays': numDays})
 
 
 @login_required
@@ -168,7 +182,7 @@ def search_user_for_token(token: str) -> User:
     for user in users:
         if user.profile.token is None:
             continue
-        
+
         decrypted_token = fernet.decrypt(bytes(user.profile.token)).decode()  # https://code.djangoproject.com/ticket/27813
         if decrypted_token == token:
             return user

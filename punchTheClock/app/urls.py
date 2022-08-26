@@ -11,7 +11,7 @@ urlpatterns = [
 
     # Web UI
     path('token', views.token, name='token'),
-    path('list', views.timelog_list, name='timelog_list'),
+    path('list', views.timelog_list, name='timelog_list', kwargs={'sorting': 'desc'}),
     path('calendar', views.timelog_calendar, name='timelog_calendar'),
     path('details/<int:timelog_id>', views.timelog_details, name='timelog_details')
 ]
