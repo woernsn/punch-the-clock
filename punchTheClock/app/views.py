@@ -16,7 +16,7 @@ from .models import Profile, TimeLog
 
 
 @login_required
-def timelog_list(request, sorting = 'desc'):
+def timelog_list(request, sorting='desc'):
     sortSign = '-'
 
     if request.method == 'GET':
