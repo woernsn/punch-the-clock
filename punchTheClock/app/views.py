@@ -138,6 +138,7 @@ def apiPunch(request):
             return PTCJsonResponseServerError(message='Multiple users found. Please report.')
 
     now = timezone.now()
+    now = now.replace(second=0, microsecond=0)
 
     # check for open time
     try:
