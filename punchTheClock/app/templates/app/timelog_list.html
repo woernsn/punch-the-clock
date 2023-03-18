@@ -13,12 +13,14 @@
                     <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    Show last <b><span id="daysToShow">{{showLastDays}}</span></b> days<br/>
+                  <form class="text-center border border-light p-5" action="#!">
+                    <p class="h4 mb-4">Settings</p>
 
+                    <!-- Number of last days to show -->
                     <div class="range">
-                        <input type="range" name="numDaysRange" value="{{showLastDays}}" class="form-range" min="1" max="90" id="numDaysRange" oninput="$('#daysToShow').text(this.value)"/>
+                      <label for="numDaysRange">Show last <b><span id="daysToShow">{{showLastDays}}</span></b> days<br/></label>
+                      <input type="range" name="numDaysRange" value="{{showLastDays}}" class="form-range" min="1" max="90" id="numDaysRange" oninput="$('#daysToShow').text(this.value)"/>
                     </div>
-
                 </div>
                 <div class="modal-footer">
                     <button id="daysToShowModalBtn" type="submit" class="btn btn-primary" onclick="" data-mdb-dismiss="modal">Update</button>
@@ -33,6 +35,38 @@
     <button type="button" class="btn btn-primary m-4" data-mdb-toggle="modal" data-mdb-target="#daysToShowModal">
         Settings
     </button>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h4 class="card-title"><a>Daily hours</a></h4>
+          <canvas id="chartDay"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm">
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h4 class="card-title"><a>Weekly hours</a></h4>
+          <canvas id="chartWeek"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm">
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h4 class="card-title"><a>Monthly hours</a></h4>
+          <canvas id="chartMonth"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <table class="table table-hover table-responsive bg-white">
@@ -53,7 +87,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for timelog in timelog_list %}
+        {% for timelog in timelog_list.keys %}
         <tr>
             <td>{{ timelog.start_date|date:"l, d.m.Y" }}</td>
             <td>{{ timelog.start_date|date:"H:i" }}</td>
@@ -70,4 +104,60 @@
         {% endfor %}
     </tbody>
 </table>
+
+{% load static %}
+<script src="{% static 'resources/js/punchTheClock.js' %}"></script>
+<script>
+
+  var days = {};
+  var weeks = {};
+  var months = {};
+
+  {% for timelog, duration in timelog_list.items %}
+    var currentDay = '{{ timelog.start_date|date:"d.m.Y" }}';
+    var currentWeek = 'CW{{ timelog.start_date|date:"W" }}';
+    var currentMonth = '{{ timelog.start_date|date:"M" }}';
+
+    if (!(currentDay in days)) {
+      days[currentDay] = 0;
+    }
+    if (!(currentWeek in weeks)) {
+      weeks[currentWeek] = 0;
+    }
+    if (!(currentMonth in months)) {
+      months[currentMonth] = 0;
+    }
+
+    days[currentDay] += {{duration}};
+    weeks[currentWeek] += {{duration}};
+    months[currentMonth] += {{duration}};
+  {% endfor %}
+
+  const graphDataArr = [
+    {
+      'context': $('#chartDay'),
+      'data': days,
+      'colorFunction': function(context) {
+          const index = context.dataIndex;
+          const value = context.dataset.data[index];
+          return value < 8 ? 'rgb(194, 115, 111, 0.6)' : 'rgba(145, 205, 216, 0.6)';
+        }
+    }, {
+      'context': $('#chartWeek'),
+      'data': weeks,
+      'colorFunction': function(context) {
+          const index = context.dataIndex;
+          const value = context.dataset.data[index];
+          return value < 40 ? 'rgb(194, 115, 111, 0.6)' : 'rgba(145, 205, 216, 0.6)';
+        }
+    }, {
+      'context': $('#chartMonth'),
+      'data': months,
+      'colorFunction': function(context) { return 'rgba(145, 205, 216, 0.6)' }
+    }
+  ]
+
+  createGraphs(graphDataArr);
+</script>
+
 {% endblock %}

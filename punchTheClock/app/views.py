@@ -32,8 +32,12 @@ def timelog_list(request, sorting='desc'):
     now = timezone.now()
     pastDays = now - timedelta(days=(int(numDays) if numDays else 30))
 
-    timelogs = TimeLog.objects.filter(user_id=request.user.id).filter(start_date__gte=pastDays).order_by(f'{sortSign}start_date')
-
+    timelogs = {}
+    for tl in TimeLog.objects.filter(user_id=request.user.id).filter(start_date__gte=pastDays).order_by(f'{sortSign}start_date'):
+        if tl.end_date is not None:
+            timelogs[tl] = (tl.end_date - tl.start_date).total_seconds() / 3600
+        else:
+            timelogs[tl] = (timezone.now() - tl.start_date).total_seconds() / 3600
     return render(request, 'app/timelog_list.html', {'timelog_list': timelogs, 'title': 'List', 'sortAsc': sortSign == '', 'showLastDays': numDays})
 
 
