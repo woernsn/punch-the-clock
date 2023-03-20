@@ -13,10 +13,10 @@ function createGraphs(graphDataArr) {
 
     graphDataArr.forEach(graphData => {
         const _data = {
-            labels: Object.keys(graphData.data),
+            labels: Object.keys(graphData.data).reverse(),
             datasets: [{
                 label: 'hours',
-                data: Object.values(graphData.data)
+                data: Object.values(graphData.data).reverse()
             }]
         }
 
