@@ -1,5 +1,5 @@
 from datetime import timedelta
-from django.http import HttpResponseForbidden, HttpResponseNotAllowed, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -33,12 +33,21 @@ def timelog_list(request, sorting='desc'):
     pastDays = now - timedelta(days=(int(numDays) if numDays else 30))
 
     timelogs = {}
-    for tl in TimeLog.objects.filter(user_id=request.user.id).filter(start_date__gte=pastDays).order_by(f'{sortSign}start_date'):
+    for tl in (TimeLog.objects.filter(user_id=request.user.id).filter(start_date__gte=pastDays).order_by(f'{sortSign}start_date')):
         if tl.end_date is not None:
             timelogs[tl] = (tl.end_date - tl.start_date).total_seconds() / 3600
         else:
             timelogs[tl] = (timezone.now() - tl.start_date).total_seconds() / 3600
-    return render(request, 'app/timelog_list.html', {'timelog_list': timelogs, 'title': 'List', 'sortAsc': sortSign == '', 'showLastDays': numDays})
+    return render(
+        request,
+        'app/timelog_list.html',
+        {
+            'timelog_list': timelogs,
+            'title': 'List',
+            'sortAsc': sortSign == '',
+            'showLastDays': numDays
+        }
+    )
 
 
 @login_required
@@ -76,6 +85,42 @@ def timelog_details(request, timelog_id):
 
     return render(request, 'app/timelog_details.html', {'form': form, 'timelog_id': timelog_id, 'title': f'Details (#{timelog_id})', 'updated': updated})
 
+@login_required
+def export(request):
+    if 'monthToExport' in request.POST:
+        export_date = request.POST['monthToExport']
+    else:
+        return HttpResponseRedirect('/list')
+    
+    month = int(export_date.split('-')[1])
+    year = int(export_date.split('-')[0])
+
+    wanted_month = timezone.now().replace(month=month).replace(year=year)
+    first_day_of_month = wanted_month.replace(day=1)
+    last_day_of_month = wanted_month.replace(day=28) + timedelta(days=4)
+    last_day_of_month = last_day_of_month - timedelta(days=last_day_of_month.day)
+    timelogs = (TimeLog.objects
+        .filter(user_id=request.user.id)
+        .filter(start_date__gte=first_day_of_month)
+        .filter(end_date__lte=last_day_of_month))
+    
+    import io
+    import csv
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    writer.writerow(['Day', 'Start time', 'End time'])
+    for tl in timelogs:
+        writer.writerow([
+            tl.start_date.strftime("%d.%m.%Y"),
+            tl.start_date.strftime("%H:%M"),
+            tl.end_date.strftime("%H:%M")
+        ])
+
+    response = HttpResponse(output.getvalue(), content_type='text/csv')
+    response['Content-Length'] = len(output.getvalue())
+
+    return response
 
 @login_required
 def token(request):
