@@ -58,8 +58,9 @@ class APITests(TestCase):
         client.login(username='testuser', password='12345')
         response = client.post('/token')
         self.assertEqual(response.status_code, 200)
+        client.logout()
 
-        token = response.context[9]['widget']['value']
+        token = response.context[2]['widget']['value']
 
         # TimeLog is created with 'null' as end time
         response = client.post('/api/punch', HTTP_AUTHORIZATION=f'Bearer {token}')
@@ -75,27 +76,24 @@ class APITests(TestCase):
         user = addUser()
         client = Client()
         client.login(username='testuser', password='12345')
-        response = client.post('/token')
-        token = response.context[9]['widget']['value']
 
         for i in range(0, 10):
             addTimeLog(user)
 
-        response = client.get('/list', HTTP_AUTHORIZATION=f'Bearer {token}')
+        response = client.get('/list')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode().count('<li>'), 10)
+        search_phrase = datetime.now().strftime('%d.%m.%Y</td>')
+        self.assertEqual(response.content.decode().count(search_phrase), 10)
 
         response = client.post('/details/1', {'delete': ''})
-        response = client.get('/list', HTTP_AUTHORIZATION=f'Bearer {token}')
+        response = client.get('/list')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode().count('<li>'), 9)
+        self.assertEqual(response.content.decode().count(search_phrase), 9)
 
     def test_timelog_update(self):
         user = addUser()
         client = Client()
         client.login(username='testuser', password='12345')
-        response = client.post('/token')
-        response.context[9]['widget']['value']
         addTimeLog(user)
 
         newDateTime = timezone.datetime(2020, 10, 31, 11, 11)
