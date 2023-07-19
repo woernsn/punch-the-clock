@@ -52,8 +52,8 @@
 <body>
     <header>
         <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-            <div class="container-fluid justify-content-between">
+        <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light fixed-top">
+            <div class="container-fluid">
                 
                 <div class="d-flex align-items-center">
                     <!-- Left links -->
@@ -89,7 +89,11 @@
 
                 <!-- Right links -->
                 <ul class="navbar-nav flex-row">
-                    <li class="nav-item me-3 me-lg-1">
+                    <li class="nav-item">
+                        <a role="button" data-mdb-toggle="modal" data-mdb-target="#monthToExportModal" class="nav-link">Export</a>
+                    </li>
+
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'token' %}">API Token</a>
                     </li>
                 </ul>
@@ -105,6 +109,47 @@
         </div>
         <!-- Jumbotron -->
     </header>
+
+    <div class="modal fade" id="monthToExportModal" tabindex="-1" aria-labelledby="monthToExportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form action="{% url 'export' %}" method="post">
+                    {% csrf_token %}
+    
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="monthToExportModalLabel">Export</h5>
+                        <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <form class="text-center border border-light p-5" action="#!">
+                        <p class="h4 mb-4">Month to export</p>
+    
+                        <!-- Number of last days to show -->
+                        <div class="range">
+                          <label for="monthToExport">Pick month and year to export.</label>
+                          <input required type="month" name="monthToExport" id="monthToExport"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="monthToExportModalBtn" type="submit" class="btn btn-primary" onclick="" data-mdb-dismiss="modal">Export</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            const d = new Date();
+            const currentMonth = `${d.getFullYear()}-${d.getMonth() + 1}`;
+
+            const monthToExport = $("#monthToExport");
+            monthToExport.val(currentMonth);
+            monthToExport.attr({
+                "max" : currentMonth
+            })
+        });
+    </script>
 </body>
 
 </html>

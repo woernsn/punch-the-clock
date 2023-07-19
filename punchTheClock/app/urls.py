@@ -13,5 +13,6 @@ urlpatterns = [
     path('token', views.token, name='token'),
     path('list', views.timelog_list, name='timelog_list', kwargs={'sorting': 'desc'}),
     path('calendar', views.timelog_calendar, name='timelog_calendar'),
+    path('export', views.export, name='export'),
     path('details/<int:timelog_id>', views.timelog_details, name='timelog_details')
 ]
