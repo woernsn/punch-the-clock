@@ -38,6 +38,7 @@
   * Edit or remove existing entries.
   * Generate an API token to use the REST API.
   * Punch in or out directly from the WebUI.
+  * Export monthly CSV files.
 * REST API
   * One simple endpoint to punch in or out if already punched in (toggle): `/api/punch`.
   * BEARER authentication.
