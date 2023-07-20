@@ -22,7 +22,8 @@ from app.forms import CustomLoginForm
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/login/', LoginView.as_view(authentication_form=CustomLoginForm), name='login'),
+    path('accounts/login/',
+         LoginView.as_view(authentication_form=CustomLoginForm), name='login'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('app.urls')),
 ]

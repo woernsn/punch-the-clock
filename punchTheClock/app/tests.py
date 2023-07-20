@@ -19,7 +19,9 @@ def addUser():
 
 
 def addTimeLog(user):
-    tl = TimeLog.objects.create(start_date=timezone.now(), end_date=timezone.now(), user_id=user)
+    tl = TimeLog.objects.create(start_date=timezone.now(),
+                                end_date=timezone.now(),
+                                user_id=user)
     tl.save()
     return tl
 
@@ -97,7 +99,12 @@ class APITests(TestCase):
         addTimeLog(user)
 
         newDateTime = timezone.datetime(2020, 10, 31, 11, 11)
-        response = client.post('/details/1', {'update': '', 'start_date': newDateTime, 'end_date': newDateTime})
+        response = client.post('/details/1',
+                               {
+                                   'update': '',
+                                   'start_date': newDateTime,
+                                   'end_date': newDateTime
+                               })
         self.assertEqual(response.status_code, 200)
 
         response = client.get('/details/1')

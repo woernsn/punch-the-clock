@@ -1,5 +1,10 @@
 from datetime import timedelta
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotAllowed, HttpResponseRedirect
+from django.http import (
+    HttpResponse,
+    HttpResponseForbidden,
+    HttpResponseNotAllowed,
+    HttpResponseRedirect
+)
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -10,7 +15,12 @@ from django.conf import settings
 import secrets
 from cryptography.fernet import Fernet
 
-from .JsonReponse import PTCJsonResponse, PTCJsonResponseServerError, PTCJsonResponseForbidden, PTCJsonResponseNotAllowed
+from .JsonReponse import (
+    PTCJsonResponse,
+    PTCJsonResponseServerError,
+    PTCJsonResponseForbidden,
+    PTCJsonResponseNotAllowed
+)
 from .forms import ProfileForm, TimeLogForm
 from .models import Profile, TimeLog
 
@@ -33,7 +43,10 @@ def timelog_list(request, sorting='desc'):
     pastDays = now - timedelta(days=(int(numDays) if numDays else 30))
 
     timelogs = {}
-    for tl in (TimeLog.objects.filter(user_id=request.user.id).filter(start_date__gte=pastDays).order_by(f'{sortSign}start_date')):
+    for tl in (TimeLog.objects
+               .filter(user_id=request.user.id)
+               .filter(start_date__gte=pastDays)
+               .order_by(f'{sortSign}start_date')):
         if tl.end_date is not None:
             timelogs[tl] = (tl.end_date - tl.start_date).total_seconds() / 3600
         else:
@@ -54,8 +67,15 @@ def timelog_list(request, sorting='desc'):
 def timelog_calendar(request):
     now = timezone.now()
     past_date_before_2months = now - timedelta(weeks=settings.WEEKS_TO_SHOW)
-    timelogs = TimeLog.objects.filter(user_id=request.user.id).filter(start_date__gte=past_date_before_2months)
-    return render(request, 'app/timelog_calendar.html', {'timelog_list': timelogs, 'title': 'Calendar'})
+    timelogs = (TimeLog.objects
+                .filter(user_id=request.user.id)
+                .filter(start_date__gte=past_date_before_2months))
+    return render(request,
+                  'app/timelog_calendar.html',
+                  {
+                      'timelog_list': timelogs,
+                      'title': 'Calendar'
+                  })
 
 
 @login_required
@@ -83,7 +103,15 @@ def timelog_details(request, timelog_id):
     else:
         return HttpResponseNotAllowed(f'{request.method} not allowed!')
 
-    return render(request, 'app/timelog_details.html', {'form': form, 'timelog_id': timelog_id, 'title': f'Details (#{timelog_id})', 'updated': updated})
+    return render(request,
+                  'app/timelog_details.html',
+                  {
+                      'form': form,
+                      'timelog_id': timelog_id,
+                      'title': f'Details (#{timelog_id})',
+                      'updated': updated
+                  })
+
 
 @login_required
 def export(request):
@@ -91,19 +119,21 @@ def export(request):
         export_date = request.POST['monthToExport']
     else:
         return HttpResponseRedirect('/list')
-    
+
     month = int(export_date.split('-')[1])
     year = int(export_date.split('-')[0])
 
     wanted_month = timezone.now().replace(month=month).replace(year=year)
     first_day_of_month = wanted_month.replace(day=1)
     last_day_of_month = wanted_month.replace(day=28) + timedelta(days=4)
-    last_day_of_month = last_day_of_month - timedelta(days=last_day_of_month.day)
+    last_day_of_month = last_day_of_month - timedelta(
+        days=last_day_of_month.day
+    )
     timelogs = (TimeLog.objects
-        .filter(user_id=request.user.id)
-        .filter(start_date__gte=first_day_of_month)
-        .filter(end_date__lte=last_day_of_month))
-    
+                .filter(user_id=request.user.id)
+                .filter(start_date__gte=first_day_of_month)
+                .filter(end_date__lte=last_day_of_month))
+
     import io
     import csv
     output = io.StringIO()
@@ -121,6 +151,7 @@ def export(request):
     response['Content-Length'] = len(output.getvalue())
 
     return response
+
 
 @login_required
 def token(request):
@@ -157,7 +188,13 @@ def token(request):
         form['token'].initial = token
         generated = True
 
-    return render(request, 'app/token.html', {'form': form, 'title': 'API Token', 'generated': generated})
+    return render(request,
+                  'app/token.html',
+                  {
+                      'form': form,
+                      'title': 'API Token',
+                      'generated': generated
+                  })
 
 
 @csrf_exempt
@@ -174,7 +211,9 @@ def apiPunch(request):
         # Handle calls coming via REST
         auth: str = request.headers.get('Authorization')
         if auth is None or not auth.startswith('Bearer'):
-            return PTCJsonResponseForbidden(message='You have to be authorized!')
+            return PTCJsonResponseForbidden(
+                message='You have to be authorized!'
+            )
 
         # Find user for token
         token = auth.removeprefix('Bearer ')
@@ -184,7 +223,9 @@ def apiPunch(request):
         except User.DoesNotExist:
             return PTCJsonResponseForbidden()
         except User.MultipleObjectsReturned:
-            return PTCJsonResponseServerError(message='Multiple users found. Please report.')
+            return PTCJsonResponseServerError(
+                message='Multiple users found. Please report.'
+            )
 
     now = timezone.now()
     now = now.replace(second=0, microsecond=0)
@@ -194,7 +235,9 @@ def apiPunch(request):
         currentTime = TimeLog.objects.get(end_date__isnull=True, user_id=user)
 
     except TimeLog.MultipleObjectsReturned:
-        return PTCJsonResponseServerError(message='Found too many - check in admin page!')
+        return PTCJsonResponseServerError(
+            message='Found too many - check in admin page!'
+        )
 
     except TimeLog.DoesNotExist:
         # None found - creating new one
@@ -202,7 +245,10 @@ def apiPunch(request):
         tl.save()
 
         if isRest:
-            return PTCJsonResponse(message='Successfully created TimeLog.', object=tl.json())
+            return PTCJsonResponse(
+                message='Successfully created TimeLog.',
+                object=tl.json()
+            )
         else:
             next = request.POST.get('next', '/')
             return HttpResponseRedirect(next)
@@ -212,7 +258,10 @@ def apiPunch(request):
     currentTime.save()
 
     if isRest:
-        return PTCJsonResponse(message='Successfully updated TimeLog.', object=currentTime.json())
+        return PTCJsonResponse(
+            message='Successfully updated TimeLog.',
+            object=currentTime.json()
+        )
     else:
         next = request.POST.get('next', '/')
         return HttpResponseRedirect(next)
@@ -233,7 +282,8 @@ def search_user_for_token(token: str) -> User:
         if user.profile.token is None:
             continue
 
-        decrypted_token = fernet.decrypt(bytes(user.profile.token)).decode()  # https://code.djangoproject.com/ticket/27813
+        # https://code.djangoproject.com/ticket/27813
+        decrypted_token = fernet.decrypt(bytes(user.profile.token)).decode()
         if decrypted_token == token:
             return user
 
