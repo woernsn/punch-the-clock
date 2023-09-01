@@ -124,15 +124,24 @@ def export(request):
     year = int(export_date.split('-')[0])
 
     wanted_month = timezone.now().replace(month=month).replace(year=year)
-    first_day_of_month = wanted_month.replace(day=1)
-    last_day_of_month = wanted_month.replace(day=28) + timedelta(days=4)
-    last_day_of_month = last_day_of_month - timedelta(
-        days=last_day_of_month.day
-    )
+    first_day_of_month = (wanted_month
+                          .replace(day=1)
+                          .replace(hour=0)
+                          .replace(minute=0)
+                          .replace(second=0))
+    if wanted_month.month == 12:
+        first_day_of_next_month = (first_day_of_month
+                                   .replace(month=1)
+                                   .replace(year=first_day_of_month.year + 1))
+    else:
+        first_day_of_next_month = (first_day_of_month
+                                   .replace(month=first_day_of_month.month + 1))
+
     timelogs = (TimeLog.objects
                 .filter(user_id=request.user.id)
                 .filter(start_date__gte=first_day_of_month)
-                .filter(end_date__lte=last_day_of_month))
+                .filter(end_date__lt=first_day_of_next_month)
+                .order_by('start_date'))
 
     import io
     import csv
